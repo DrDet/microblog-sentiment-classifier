@@ -1,0 +1,5 @@
+[packages]
+langdetect = "*"
+nltk = "*"
+sklearn = "*"
+pandas = "*"
