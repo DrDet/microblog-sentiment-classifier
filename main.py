@@ -10,15 +10,32 @@ def load_dataset(dataset_path):
 
 
 def main(train_set_path: str, test_set_path: str, normalization_lexicon_path: str):
-    train = load_dataset(train_set_path).sample(100)
-    test = load_dataset(test_set_path)
+    train = load_dataset(train_set_path)
     clf = SentimentClassifier(normalization_lexicon_path)
+    print('fitting classifier...')
     clf.fit(train)
-    pred_sent, pred_org = clf.predict_sentiment(test, True), clf.predict_organization(test)
-    print('=========== Sentiment prediction report ===========')
-    print(classification_report(test['Sentiment'], pred_sent))
-    print('=========== Organization prediction report ===========')
-    print(classification_report(test['Topic'], pred_org))
+    while True:
+        print('What would you like to predict? (s - sentiment, o - organization)')
+        mode = input()
+        assert mode in ['s', 'o']
+        print('Enter tweet text:')
+        tweet_text = input()
+        str_time, org = ('', '')
+        if mode == 's':
+            print('Enter time in format like "Wed Oct 19 16:56:52 +0000 2011":')
+            str_time = input()
+            print('Enter organization, must be one of the following: "apple" "google" "microsoft" "twitter":')
+            org = input()
+        X = pd.DataFrame({'TweetText': [tweet_text], 'Topic': [org], 'TweetDate': [str_time]})
+        if mode == 's':
+            pred_sent, rate = clf.predict_sentiment(X)[0], clf.predict_sentiment(X, get_rate=True)[0]
+            print('%s: %.2f / 5.00' % (pred_sent, rate))
+        else:
+            print(clf.predict_organization(X)[0])
+        print('Continue? (Y/n)')
+        cont = input()
+        if cont == 'n':
+            break
 
 
 if __name__ == '__main__':
