@@ -4,12 +4,17 @@ import pandas as pd
 from src.sentiment_classifier import SentimentClassifier
 
 
+def load_dataset(dataset_path):
+    df = pd.read_csv(dataset_path)
+    return df[df['Sentiment'] != 'irrelevant']
+
+
 def main(train_set_path: str, test_set_path: str, normalization_lexicon_path: str):
-    train = pd.read_csv(train_set_path)
-    test = pd.read_csv(test_set_path)
+    train = load_dataset(train_set_path).sample(100)
+    test = load_dataset(test_set_path)
     clf = SentimentClassifier(normalization_lexicon_path)
     clf.fit(train)
-    pred_sent, pred_org = clf.predict_sentiment(test), clf.predict_organization(test)
+    pred_sent, pred_org = clf.predict_sentiment(test, True), clf.predict_organization(test)
     print('=========== Sentiment prediction report ===========')
     print(classification_report(test['Sentiment'], pred_sent))
     print('=========== Organization prediction report ===========')
